@@ -1,7 +1,7 @@
 # Home Assistant Add-on manifest for Orkestra.
 # Docs: https://developers.home-assistant.io/docs/add-ons/configuration
 name: Orkestra
-version: "1.0.19"
+version: "1.0.20"
 slug: orkestra
 description: Smart Home AI Dashboard
 url: https://github.com/your-org/orkestra
@@ -38,7 +38,7 @@ options:
 schema:
   home_assistant_url: str
   home_assistant_token: str?
-  orkestra_cloud_url: url
+  orkestra_cloud_url: "https://api.orkestra-assistant.com"
   orkestra_instance_token: password?
 
 image: "ghcr.io/orkestrasmarthome/orkestra-core-{arch}"

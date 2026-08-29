@@ -16,11 +16,7 @@ tar -czf "${ARCHIVE}" \
   orkestra/config.yaml \
   orkestra/README.md \
   orkestra/icon.png \
-  orkestra/logo.jpeg \
-  orkestra_staging/config.yaml \
-  orkestra_staging/README.md \
-  orkestra_staging/icon.png \
-  orkestra_staging/logo.jpeg
+  orkestra/logo.jpeg
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   echo "archive=${ARCHIVE}" >> "${GITHUB_OUTPUT}"

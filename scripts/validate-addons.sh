@@ -7,7 +7,6 @@ cd "${ROOT_DIR}"
 
 ADDONS=(
   "orkestra:orkestra"
-  "orkestra_staging:orkestra_staging"
 )
 
 fail() {
@@ -51,10 +50,5 @@ for entry in "${ADDONS[@]}"; do
 done
 
 prod_version="$(read_yaml_field orkestra/config.yaml version)"
-staging_version="$(read_yaml_field orkestra_staging/config.yaml version)"
-
-if [[ "${prod_version}" != "${staging_version}" ]]; then
-  fail "Version mismatch: orkestra=${prod_version}, orkestra_staging=${staging_version}"
-fi
 
 echo "Add-on store validation passed (release version ${prod_version})"

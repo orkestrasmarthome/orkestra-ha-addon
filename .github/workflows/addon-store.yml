@@ -30,28 +30,8 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v4
 
-      - name: Align staging version with production
-        if: >-
-          github.event_name == 'push' &&
-          github.ref == 'refs/heads/main' &&
-          !startsWith(github.event.head_commit.message, 'chore(addon-store):')
-        run: bash scripts/sync-addon-versions.sh
-
       - name: Validate manifests and store layout
         run: bash scripts/validate-addons.sh
-
-      - name: Commit version sync
-        if: >-
-          github.event_name == 'push' &&
-          github.ref == 'refs/heads/main' &&
-          !startsWith(github.event.head_commit.message, 'chore(addon-store):')
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add orkestra_staging/config.yaml
-          git diff --staged --quiet && echo "No version sync needed" && exit 0
-          git commit -m "chore(addon-store): sync staging add-on version with production"
-          git push origin HEAD:main
 
   verify-images:
     name: Verify GHCR images
@@ -107,7 +87,7 @@ jobs:
 
           echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
 
-      - name: Package production and staging add-ons
+      - name: Package production add-on
         id: package
         run: bash scripts/package-addon-store.sh dist
 
@@ -117,19 +97,13 @@ jobs:
           cat > dist/release-notes.md <<EOF
           ## Orkestra Add-on Store ${VERSION}
 
-          This release packages both Home Assistant add-on manifests that share the same container image version.
+          This release packages the production Home Assistant add-on manifest.
 
           ### Production
           - **Name:** Orkestra
           - **Slug:** \`orkestra\`
           - **Folder:** \`orkestra/\`
           - **API default:** \`https://api.orkestra-assistant.com\`
-
-          ### Staging
-          - **Name:** Orkestra Staging
-          - **Slug:** \`orkestra_staging\`
-          - **Folder:** \`orkestra_staging/\`
-          - **API default:** \`https://staging-api.orkestra-assistant.com\`
 
           ### Images
           - \`${{ env.IMAGE_PREFIX }}-amd64:${VERSION}\`

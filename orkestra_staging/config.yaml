@@ -1,9 +1,9 @@
-# Home Assistant Add-on manifest for Orkestra.
+# Home Assistant Add-on manifest for Orkestra Staging.
 # Docs: https://developers.home-assistant.io/docs/add-ons/configuration
-name: Orkestra
+name: Orkestra Staging
 version: "1.0.8"
-slug: orkestra
-description: Smart Home AI Dashboard
+slug: orkestra_staging
+description: Orkestra development build for local testing and development against the staging API.
 url: https://github.com/your-org/orkestra
 arch:
   - aarch64
@@ -16,14 +16,14 @@ watchdog: default
 # Serve the dashboard through Home Assistant Ingress (sidebar panel).
 ingress: true
 ingress_port: 3001
-panel_icon: "mdi:home-lightning-bolt-outline"
-panel_title: "Orkestra"
+panel_icon: "mdi:flask"
+panel_title: "Orkestra Staging"
 
 # Optional direct host access (debug); Ingress is the primary UI path.
 ports:
-  3001/tcp: 3001
+  3002/tcp: 3002
 ports_description:
-  3001/tcp: Orkestra web dashboard
+  3002/tcp: Orkestra Staging web dashboard
 
 # Allow the add-on to talk to the Home Assistant Core API
 homeassistant_api: true
@@ -32,7 +32,7 @@ homeassistant_api: true
 options:
   home_assistant_url: "http://supervisor/core"
   home_assistant_token: ""
-  orkestra_cloud_url: "https://api.orkestra-assistant.com"
+  orkestra_cloud_url: "https://staging-api.orkestra-assistant.com"
   orkestra_instance_token: ""
 schema:
   home_assistant_url: str

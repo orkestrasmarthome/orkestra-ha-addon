@@ -12,7 +12,7 @@
 
 1. Click **Install** and start the add-on.
 2. Open the **Configuration** tab and enter your **Orkestra Cloud** credentials:
-   - **Orkestra Cloud URL** — usually `https://api.orkestra.app`
+   - **Orkestra Cloud URL** — defaults to `https://api.orkestra-assistant.com`
    - **Orkestra Instance Token** — from your [Orkestra Cloud](https://orkestra-client.vercel.app) account
 3. Save, restart the add-on if prompted, then open **Orkestra** from the Home Assistant sidebar.
 

@@ -38,7 +38,7 @@ options:
 schema:
   home_assistant_url: str
   home_assistant_token: str?
-  orkestra_cloud_url: "https://api.orkestra-assistant.com"
+  orkestra_cloud_url: url
   orkestra_instance_token: password?
 
 image: "ghcr.io/orkestrasmarthome/orkestra-core-{arch}"

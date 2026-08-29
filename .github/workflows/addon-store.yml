@@ -1,0 +1,157 @@
+name: Add-on store
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - "v*"
+  release:
+    types:
+      - published
+  workflow_dispatch:
+
+concurrency:
+  group: addon-store-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  IMAGE_PREFIX: ghcr.io/orkestrasmarthome/orkestra-core
+  ARCHES: amd64 aarch64
+
+jobs:
+  prepare:
+    name: Sync versions and validate
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Align staging version with production
+        if: >-
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main' &&
+          !startsWith(github.event.head_commit.message, 'chore(addon-store):')
+        run: bash scripts/sync-addon-versions.sh
+
+      - name: Validate manifests and store layout
+        run: bash scripts/validate-addons.sh
+
+      - name: Commit version sync
+        if: >-
+          github.event_name == 'push' &&
+          github.ref == 'refs/heads/main' &&
+          !startsWith(github.event.head_commit.message, 'chore(addon-store):')
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add orkestra_staging/config.yaml
+          git diff --staged --quiet && echo "No version sync needed" && exit 0
+          git commit -m "chore(addon-store): sync staging add-on version with production"
+          git push origin HEAD:main
+
+  verify-images:
+    name: Verify GHCR images
+    needs: prepare
+    if: >-
+      needs.prepare.result == 'success' && (
+        startsWith(github.ref, 'refs/tags/v') ||
+        github.event_name == 'release'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Verify published container images
+        env:
+          IMAGE_PREFIX: ${{ env.IMAGE_PREFIX }}
+          ARCHES: ${{ env.ARCHES }}
+        run: bash scripts/verify-addon-images.sh
+
+  publish-release:
+    name: Publish add-on store release
+    needs:
+      - prepare
+      - verify-images
+    if: >-
+      needs.prepare.result == 'success' &&
+      needs.verify-images.result == 'success' && (
+        startsWith(github.ref, 'refs/tags/v') ||
+        github.event_name == 'release'
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Resolve release version
+        id: version
+        run: |
+          if [[ "${{ github.event_name }}" == "release" ]]; then
+            VERSION="${{ github.event.release.tag_name }}"
+            VERSION="${VERSION#v}"
+          elif [[ "${{ github.ref_type }}" == "tag" ]]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          else
+            VERSION="$(sed -n 's/^version:[[:space:]]*["'\'']*\([^"'\'']*\)["'\'']*/\1/p' orkestra/config.yaml | head -1)"
+          fi
+
+          if [[ ! "${VERSION}" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid release version: ${VERSION:-<empty>}"
+            exit 1
+          fi
+
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Package production and staging add-ons
+        id: package
+        run: bash scripts/package-addon-store.sh dist
+
+      - name: Build release notes
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          cat > dist/release-notes.md <<EOF
+          ## Orkestra Add-on Store ${VERSION}
+
+          This release packages both Home Assistant add-on manifests that share the same container image version.
+
+          ### Production
+          - **Name:** Orkestra
+          - **Slug:** \`orkestra\`
+          - **Folder:** \`orkestra/\`
+          - **API default:** \`https://api.orkestra-assistant.com\`
+
+          ### Staging
+          - **Name:** Orkestra Staging
+          - **Slug:** \`orkestra_staging\`
+          - **Folder:** \`orkestra_staging/\`
+          - **API default:** \`https://staging-api.orkestra-assistant.com\`
+
+          ### Images
+          - \`${{ env.IMAGE_PREFIX }}-amd64:${VERSION}\`
+          - \`${{ env.IMAGE_PREFIX }}-aarch64:${VERSION}\`
+
+          Home Assistant reads this repository directly. Refresh the add-on store in Supervisor after the \`main\` branch is updated.
+          EOF
+
+      - name: Publish GitHub release from tag
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: ncipollo/release-action@v1
+        with:
+          tag: v${{ steps.version.outputs.version }}
+          name: Orkestra Add-on Store v${{ steps.version.outputs.version }}
+          bodyFile: dist/release-notes.md
+          artifacts: dist/orkestra-addon-store-${{ steps.version.outputs.version }}.tar.gz
+          allowUpdates: true
+          makeLatest: true
+
+      - name: Attach packaged add-ons to published release
+        if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: dist/orkestra-addon-store-${{ steps.version.outputs.version }}.tar.gz

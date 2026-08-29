@@ -1,13 +1,15 @@
-# Home Assistant Add-on manifest for Orkestra Staging.
+# Home Assistant Add-on manifest for Orkestra.
 # Docs: https://developers.home-assistant.io/docs/add-ons/configuration
 name: Orkestra Staging
-version: "1.0.11"
+version: "1.0.12"
 slug: orkestra_staging
 description: Orkestra development build for local testing and development against the staging API.
 url: https://github.com/your-org/orkestra
 arch:
   - aarch64
   - amd64
+map:
+  - data:rw
 startup: application
 boot: auto
 init: false
@@ -37,7 +39,7 @@ options:
 schema:
   home_assistant_url: str
   home_assistant_token: str?
-  orkestra_cloud_url: str
+  orkestra_cloud_url: "https://staging-api.orkestra-assistant.com"
   orkestra_instance_token: password?
 
 image: "ghcr.io/orkestrasmarthome/orkestra-core-{arch}"

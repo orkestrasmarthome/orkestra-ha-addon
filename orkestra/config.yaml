@@ -17,7 +17,7 @@ init: false
 # Serve the dashboard through Home Assistant Ingress (sidebar panel).
 ingress: true
 ingress_port: 3001
-panel_icon: "mdi:home-lightning-bolt-outline"
+panel_icon: "mdi:home-lightning-bolt"
 panel_title: "Orkestra"
 
 # Optional direct host access (debug); Ingress is the primary UI path.

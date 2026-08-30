@@ -1,7 +1,7 @@
 # Home Assistant Add-on manifest for Orkestra.
 # Docs: https://developers.home-assistant.io/docs/add-ons/configuration
 name: Orkestra
-version: "1.0.23"
+version: "1.0.24"
 slug: orkestra
 description: Smart Home AI Dashboard
 url: https://github.com/your-org/orkestra

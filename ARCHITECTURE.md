@@ -28,7 +28,7 @@ The container runs a unified **"Brain + Gateway"** server that provides:
 | Domain | Behavior |
 |--------|----------|
 | **Dashboard** | Auto-generated, room/zone-based smart-home UI from HA entity taxonomy |
-| **Setup wizard** | Multi-stage onboarding: HA auth → room mapping → discovery → integrations → calibration |
+| **Setup wizard** | Multi-stage onboarding: **device pairing code** (link to orkestra-client `/pair`) → room mapping → discovery → integrations → calibration |
 | **Chat / AI** | Natural-language device control, automation drafting; AI proxied to Orkestra Cloud |
 | **Automations** | Create/deploy native HA automations from chat or nightly AI suggestions |
 | **Analytics / Brain** | Ingests HA state events into SQLite, nightly pattern analysis, automation suggestions |
@@ -36,6 +36,8 @@ The container runs a unified **"Brain + Gateway"** server that provides:
 | **Messaging** | WhatsApp Web + Telegram bot integrations |
 
 In **Supervisor add-on mode**, HA credentials are automatic via `SUPERVISOR_TOKEN` — no Long-Lived Access Token required from the user.
+
+**Cloud linking** uses **device pairing**, not in-iframe Clerk login. The Ingress UI shows a 6-character code; users complete Clerk auth (including Google OAuth) on the public `orkestra-client` app at `/pair`. This avoids Web Crypto failures on HTTP LAN URLs and OAuth iframe blocking inside HA Ingress.
 
 ---
 
@@ -171,7 +173,8 @@ All persistent state lives at `/data/` in the container:
 | **Supervisor-first auth** | `env.ts` prefers `SUPERVISOR_TOKEN` over user LLAT |
 | **Ingress-aware SPA** | `appBase.ts` strips/adds HA Ingress prefix |
 | **BFF / Gateway** | `gateway.routes.ts` proxies HA, hides tokens |
-| **Cloud AI proxy** | Local Brain never holds OpenAI keys; uses instance token |
+| **Cloud AI proxy** | Local Brain never holds OpenAI keys; uses instance token after device pairing |
+| **Device pairing** | Local UI shows code; user claims on orkestra-client `/pair`; token delivered via Cloud poll |
 | **Single HA WebSocket** | All ingest/reactive/caching share one connection |
 
 ### CI/CD Pipeline (cross-repo)
@@ -198,8 +201,8 @@ Image registry: `ghcr.io/orkestrasmarthome/orkestra-core-{arch}`
 | Integration | Purpose |
 |-------------|---------|
 | **Home Assistant Core** | `http://supervisor/core` + `SUPERVISOR_TOKEN` — all HA operations |
-| **Orkestra Cloud** | `https://api.orkestra.app` — AI generation, auth/subscription |
-| **Orkestra Client** | `https://orkestra-client.vercel.app/dashboard` — subscription upgrade UI |
+| **Orkestra Cloud** | `https://api.orkestra.app` — pairing API, AI generation, instance verification |
+| **Orkestra Client** | `https://app.orkestra-assistant.com` — Clerk auth, `/pair` device linking, billing |
 | **Google Calendar/Gmail** | OAuth2 via `/api/google` |
 | **WhatsApp Web** | Notifications, remote commands |
 | **Telegram Bot** | Notifications, commands |
@@ -212,8 +215,8 @@ Image registry: `ghcr.io/orkestrasmarthome/orkestra-core-{arch}`
 |---------|--------------|
 | **orkestra-ha-addon** | **This repo** — HA store manifest only |
 | **orkestra-core** | **Application source** — builds Docker images referenced by add-on |
-| **orkestra-cloud** | SaaS backend for auth, billing, AI proxy |
-| **orkestra-client** | Cloud billing/subscription dashboard |
+| **orkestra-cloud** | SaaS backend for pairing, billing, AI proxy |
+| **orkestra-client** | Cloud account hub — Clerk auth, device pairing (`/pair`), billing dashboard |
 
 ### Dual Distribution Model
 

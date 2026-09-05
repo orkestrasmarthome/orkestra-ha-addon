@@ -3,7 +3,7 @@
 # (orkestra/config.yaml). Monorepo CI syncs this file there after each image build.
 # Docs: https://developers.home-assistant.io/docs/add-ons/configuration
 name: Orkestra
-version: "1.2.46"
+version: "1.2.50"
 slug: orkestra
 description: Smart Home AI Dashboard
 url: https://github.com/orkestrasmarthome/orkestra-ha-addon
@@ -30,11 +30,13 @@ options:
   home_assistant_url: "http://supervisor/core"
   home_assistant_token: ""
   orkestra_cloud_url: "https://api.orkestra-assistant.com"
+  orkestra_portal_url: "https://app.orkestra-assistant.com"
   orkestra_instance_token: ""
 schema:
   home_assistant_url: str
   home_assistant_token: str?
   orkestra_cloud_url: url
+  orkestra_portal_url: str?
   orkestra_instance_token: password?
 
 image: "ghcr.io/orkestrasmarthome/orkestra-core-{arch}"

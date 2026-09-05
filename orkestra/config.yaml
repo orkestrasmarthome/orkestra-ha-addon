@@ -3,7 +3,7 @@
 # (orkestra/config.yaml). Monorepo CI syncs this file there after each image build.
 # Docs: https://developers.home-assistant.io/docs/add-ons/configuration
 name: Orkestra
-version: "1.2.55"
+version: "1.2.56"
 slug: orkestra
 description: Smart Home AI Dashboard
 url: https://github.com/orkestrasmarthome/orkestra-ha-addon
@@ -24,6 +24,14 @@ panel_title: "Orkestra"
 
 # Allow the add-on to talk to the Home Assistant Core API
 homeassistant_api: true
+
+# Supervisor API — required for host LAN IP discovery (`GET /network/info`)
+hassio_api: true
+
+# Expose Brain HTTP on the host so LAN clients can reach `http://<lan-ip>:3001`
+# (Ingress remains the primary HA sidebar entrypoint).
+ports:
+  3001/tcp: 3001
 
 # User-configurable options (written to /data/options.json by the Supervisor)
 options:

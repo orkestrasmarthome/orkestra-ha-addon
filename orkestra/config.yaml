@@ -3,7 +3,7 @@
 # (orkestra/config.yaml). Monorepo CI syncs this file there after each image build.
 # Docs: https://developers.home-assistant.io/docs/add-ons/configuration
 name: Orkestra
-version: "1.2.103"
+version: "1.2.106"
 slug: orkestra
 description: Smart Home AI Dashboard
 url: https://github.com/orkestrasmarthome/orkestra-ha-addon
@@ -13,14 +13,17 @@ arch:
 map:
   - data:rw
 startup: application
+# Start on boot enabled by default for new installs (user can still switch to manual).
 boot: auto
 init: false
 
-# Serve the dashboard through Home Assistant Ingress (sidebar panel).
+# Ingress sidebar panel — shown for new installs when ingress + panel_* are set.
+# Auto-update is intentionally omitted: Supervisor only allows users to opt in manually.
 ingress: true
 ingress_port: 3001
 panel_icon: "mdi:home-lightning-bolt"
 panel_title: "Orkestra"
+panel_admin: false
 
 # Allow the add-on to talk to the Home Assistant Core API
 homeassistant_api: true
@@ -30,6 +33,8 @@ hassio_api: true
 
 # Expose Brain HTTP on the host so LAN clients can reach `http://<lan-ip>:3001`
 # (Ingress remains the primary HA sidebar entrypoint).
+# NOTE: Staging CI remaps this to `3001/tcp: 3002` (+ HOST_PORT) when syncing
+# orkestra-ha-addon-beta so Production and Staging can share one HA host.
 ports:
   3001/tcp: 3001
 

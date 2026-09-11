@@ -9,6 +9,15 @@ VERSION="$(sed -n 's/^version:[[:space:]]*["'\'']*\([^"'\'']*\)["'\'']*/\1/p' or
 OUTPUT_DIR="${1:-dist}"
 ARCHIVE="${OUTPUT_DIR}/orkestra-addon-store-${VERSION}.tar.gz"
 
+LOGO_ASSET=""
+for candidate in orkestra/logo.png orkestra/logo.jpeg orkestra/logo.jpg; do
+  if [[ -f "${candidate}" ]]; then
+    LOGO_ASSET="${candidate}"
+    break
+  fi
+done
+[[ -n "${LOGO_ASSET}" ]] || { echo "error: missing orkestra/logo.png (or .jpeg/.jpg)" >&2; exit 1; }
+
 mkdir -p "${OUTPUT_DIR}"
 
 tar -czf "${ARCHIVE}" \
@@ -16,7 +25,7 @@ tar -czf "${ARCHIVE}" \
   orkestra/config.yaml \
   orkestra/README.md \
   orkestra/icon.png \
-  orkestra/logo.jpeg
+  "${LOGO_ASSET}"
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
   echo "archive=${ARCHIVE}" >> "${GITHUB_OUTPUT}"

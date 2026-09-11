@@ -42,9 +42,15 @@ for entry in "${ADDONS[@]}"; do
   [[ -n "${image}" ]] || fail "${config}: missing prebuilt image reference"
   [[ "${image}" == *"{arch}"* ]] || fail "${config}: image must include {arch} placeholder"
 
-  for asset in icon.png logo.jpeg; do
-    [[ -f "${folder}/${asset}" ]] || fail "${config}: missing branding asset ${folder}/${asset}"
+  has_logo=0
+  for asset in logo.png logo.jpeg logo.jpg; do
+    if [[ -f "${folder}/${asset}" ]]; then
+      has_logo=1
+      break
+    fi
   done
+  [[ -f "${folder}/icon.png" ]] || fail "${config}: missing branding asset ${folder}/icon.png"
+  [[ "${has_logo}" -eq 1 ]] || fail "${config}: missing branding asset ${folder}/logo.png (or logo.jpeg)"
 
   echo "Validated ${folder} (${name} v${version})"
 done

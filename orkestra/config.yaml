@@ -45,11 +45,13 @@ options:
   orkestra_cloud_url: "https://api.orkestra-assistant.com"
   orkestra_portal_url: "https://app.orkestra-assistant.com"
   orkestra_instance_token: ""
+  CLERK_JWT_KEY: ""
 schema:
   home_assistant_url: str
   home_assistant_token: str?
   orkestra_cloud_url: url
   orkestra_portal_url: str?
   orkestra_instance_token: password?
+  CLERK_JWT_KEY: str?
 
 image: "ghcr.io/orkestrasmarthome/orkestra-core-{arch}"

@@ -3,7 +3,7 @@
 # (orkestra/config.yaml). Monorepo CI syncs this file there after each image build.
 # Docs: https://developers.home-assistant.io/docs/add-ons/configuration
 name: Orkestra
-version: "1.3.5"
+version: "1.4.5"
 slug: orkestra
 description: Smart Home AI Dashboard
 url: https://github.com/orkestrasmarthome/orkestra-ha-addon
@@ -20,7 +20,7 @@ init: false
 # Ingress sidebar panel — shown for new installs when ingress + panel_* are set.
 # Auto-update is intentionally omitted: Supervisor only allows users to opt in manually.
 ingress: true
-ingress_port: 3001
+ingress_port: 13791
 panel_icon: "mdi:home-lightning-bolt"
 panel_title: "Orkestra"
 panel_admin: false
@@ -31,12 +31,12 @@ homeassistant_api: true
 # Supervisor API — required for host LAN IP discovery (`GET /network/info`)
 hassio_api: true
 
-# Expose Brain HTTP on the host so LAN clients can reach `http://<lan-ip>:3001`
+# Expose Brain HTTP on the host so LAN clients can reach `http://<lan-ip>:13791`
 # (Ingress remains the primary HA sidebar entrypoint).
-# NOTE: Staging CI remaps this to `3001/tcp: 3002` (+ HOST_PORT) when syncing
+# NOTE: Staging CI remaps this to `13791/tcp: 3002` (+ HOST_PORT) when syncing
 # orkestra-ha-addon-beta so Production and Staging can share one HA host.
 ports:
-  3001/tcp: 3001
+  13791/tcp: 13791
 
 # User-configurable options (written to /data/options.json by the Supervisor)
 options:
@@ -46,6 +46,7 @@ options:
   orkestra_portal_url: "https://app.orkestra-assistant.com"
   orkestra_instance_token: ""
   CLERK_JWT_KEY: ""
+  CLERK_PUBLISHABLE_KEY: ""
 schema:
   home_assistant_url: str
   home_assistant_token: str?
@@ -53,5 +54,6 @@ schema:
   orkestra_portal_url: str?
   orkestra_instance_token: password?
   CLERK_JWT_KEY: str?
+  CLERK_PUBLISHABLE_KEY: str?
 
 image: "ghcr.io/orkestrasmarthome/orkestra-core-{arch}"

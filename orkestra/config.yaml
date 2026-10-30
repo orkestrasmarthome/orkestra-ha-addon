@@ -3,7 +3,7 @@
 # (orkestra/config.yaml). Monorepo CI syncs this file there after each image build.
 # Docs: https://developers.home-assistant.io/docs/add-ons/configuration
 name: Orkestra
-version: "1.6.49"
+version: "1.6.52"
 slug: orkestra
 description: Smart Home AI Dashboard
 url: https://github.com/orkestrasmarthome/orkestra-ha-addon
@@ -32,10 +32,15 @@ homeassistant_api: true
 # Supervisor API — required for host LAN IP discovery (`GET /network/info`)
 hassio_api: true
 
-# Expose Brain HTTP on the host so LAN clients can reach `http://<lan-ip>:13791`
-# (Ingress remains the primary HA sidebar entrypoint).
-# NOTE: Staging CI remaps this to `13791/tcp: 3002` (+ HOST_PORT) when syncing
-# orkestra-ha-addon-beta so Production and Staging can share one HA host.
+# Host network so mDNS (`orkestra.local` / `_orkestra._tcp`) reaches the LAN.
+# Bridge networking cannot carry multicast; Ingress still uses ingress_port.
+# With host_network, Supervisor ignores the `ports:` map — Brain binds
+# 0.0.0.0:13791 on the host (LAN: http://orkestra.local:13791 or http://<lan-ip>:13791).
+host_network: true
+
+# Retained for documentation / non-host_network fallbacks. Ignored when
+# host_network is true. Staging CI remaps to host 3002 (+ HOST_PORT) for the
+# beta add-on when not using host network coexistence workarounds.
 ports:
   13791/tcp: 13791
 

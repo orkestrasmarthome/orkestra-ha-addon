@@ -1,5 +1,15 @@
 # Changelog
 
+## 1.8.62
+
+_Released: 2026-11-26_
+
+### Bug Fixes
+- block turn-off on room entry, dedupe pushes, localize mined title (#798)
+- handle Paddle 403 forbidden with backoff and concise logs
+
+**Tickets:** #798
+
 ## 1.8.60
 
 _Released: 2026-11-26_
